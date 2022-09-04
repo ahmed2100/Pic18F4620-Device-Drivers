@@ -1,0 +1,3 @@
+
+#define CONFIG_ENABLE    0x01
+#define CONFIG_DISABLE   0x00
