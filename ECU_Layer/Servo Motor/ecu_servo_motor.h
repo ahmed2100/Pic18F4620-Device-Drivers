@@ -3,6 +3,9 @@
  * Author: ahmed
  *
  * Created on September 9, 2022, 4:13 PM
+ * 
+ * This module driver is created for PCA9685.
+ * 
  */
 
 #ifndef ECU_SERVO_MOTOR_H
@@ -10,6 +13,7 @@
 
 
 /******************************************** Includes ********************************************/
+#include "../../MCAL_Layer/I2C/hal_I2C.h"
 
 /******************************************** Macro Defines ***************************************************************/
 
@@ -110,15 +114,91 @@
 #define ECU_SM_PRE_SCALE_REG            0xFE
 
 
+#define ECU_SM_MODE1_REG_INIT_VAL       0x21
+
+#define ECU_SM_MODE2_REG_INIT_VAL       0x04
+
+
+#define ECU_SM_MODE1_SLEEP              0b00010000
+#define ECU_SM_MODE1_RESTART            0b10000000
+
+#define ECU_SM_INT_OSC                  25000000UL
 
 /******************************************** Macro Functions *************************************************************/
 
 
 /******************************************** User-Defined Data Type Declaration ********************************************/
 
+typedef enum {
+    PCA9685_SERVO_INDEX_0,
+    PCA9685_SERVO_INDEX_1,
+    PCA9685_SERVO_INDEX_2,
+    PCA9685_SERVO_INDEX_3,
+    PCA9685_SERVO_INDEX_4,
+    PCA9685_SERVO_INDEX_5,
+    PCA9685_SERVO_INDEX_6,
+    PCA9685_SERVO_INDEX_7,
+    PCA9685_SERVO_INDEX_8,
+    PCA9685_SERVO_INDEX_9,
+    PCA9685_SERVO_INDEX_10,
+    PCA9685_SERVO_INDEX_11,
+    PCA9685_SERVO_INDEX_12,
+    PCA9685_SERVO_INDEX_13,
+    PCA9685_SERVO_INDEX_14,
+    PCA9685_SERVO_INDEX_15            
+}PCA9685_servo_index_t ;
+
+typedef struct {
+    uint32_t PWM_freq ;
+    i2c_slave_addr_t i2c_addr ;
+    
+}PCA9685_servo_driver_t ;
+
 /******************************************** Software Interfaces (Prototypes) ********************************************/
 
+/**
+ * 
+ * @brief Interface to initialize the PCA9685 for servo motor control.
+ * 
+ * @param PCA9685_obj pointer to PCA9685 device object.
+ * @param i2c_obj pointer to i2c object used for communication over i2c bus
 
+ * @return Status of the function
+ *          (E_OK) : The function done successfully.
+ *          (E_NOT_OK) : The function had an issue performing the operation.
+ */
+Std_ReturnType PCA9685_servo_init(const PCA9685_servo_driver_t *PCA9685_obj ,const  mssp_i2c_t *i2c_obj);
+/**
+ * 
+ * @brief Interface to write an angle from (0 - 360)degree to servo
+ * 
+ * @note For servo motors of 180 degree max. the application code must limit the angle value specified because 
+ *       if you try to force a servo beyond its limits it will get very hot (possibly to destruction) 
+ *       and may strip its gears.
+ * 
+ * 
+ * @param PCA9685_obj pointer to PCA9685 device object.
+ * @param servo_index Index of servo motor.
+ * @param servo_angle Angle to write to servo motor.
+ * @return Status of the function
+ *          (E_OK) : The function done successfully.
+ *          (E_NOT_OK) : The function had an issue performing the operation.
+ */
+Std_ReturnType PCA9685_servo_write_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_t *i2c_obj , uint8_t servo_index , uint16_t servo_angle);
+
+/**
+ * 
+ * @brief Interface to read angle on servo motor.
+ * 
+ * 
+ * @param PCA9685_obj pointer to PCA9685 device object.
+ * @param servo_index Index of servo motor.
+ * @param servo_angle pointer to return the servo motor angle.
+ * @return Status of the function
+ *          (E_OK) : The function done successfully.
+ *          (E_NOT_OK) : The function had an issue performing the operation.
+ */
+Std_ReturnType PCA9685_servo_read_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_t *i2c_obj , uint8_t servo_index , uint16_t *servo_angle);
 
 /******************************************** Global Shared Variables ********************************************/
 
