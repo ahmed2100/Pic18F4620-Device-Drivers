@@ -172,15 +172,6 @@ static inline void PCA9685_read_reg(const  mssp_i2c_t *i2c_obj , i2c_slave_addr_
          /* read register byte to reg_byte */
         mssp_i2c_master_read_data_blocking(i2c_obj , reg_byte , I2C_MASTER_SEND_NACK );
     }
-    
-    
-    
-    
-    if(ack == I2C_ACK_RECEIVED_FROM_SLAVE)
-    {
-    
-    }
-
     mssp_i2c_master_send_stop_cond(i2c_obj);    
     
 }
