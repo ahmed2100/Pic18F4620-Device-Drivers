@@ -9,32 +9,32 @@
 
 #if MSSP_I2C_INT_ENABLE==FEATURE_ENABLE
 
-static InterruptHandler i2c_InterruptHandler = NULL ;
-static InterruptHandler i2c_Receive_OverFlow_callback = NULL ;
-static InterruptHandler i2c_Write_Collision_callback =  NULL ;
+static InterruptHandler I2C_InterruptHandler = NULL ;
+static InterruptHandler I2C_Receive_OverFlow_callback = NULL ;
+static InterruptHandler I2C_Write_Collision_callback =  NULL ;
 
 #endif
 
 #if MSSP_I2C_BUS_COL_INT_ENABLE==FEATURE_ENABLE
 
-static InterruptHandler i2c_bus_colision_InterruptHandler = NULL ;
+static InterruptHandler I2C_Bus_Colision_InterruptHandler = NULL ;
 
 #endif
 
 
 
 
-static inline void i2c_master_mode_init(const mssp_i2c_t *i2c_obj);
-static inline void i2c_slave_mode_init(const mssp_i2c_t *i2c_obj);
+static inline void i2c_master_mode_init(const mssp_i2c_st *i2c_obj);
+static inline void i2c_slave_mode_init(const mssp_i2c_st *i2c_obj);
 static inline void i2c_mode_gpio_config(void);
 
-static inline void i2c_interrupt_config(const mssp_i2c_t *i2c_obj);
-static inline void i2c_bus_colision_interrupt_config(const mssp_i2c_t *i2c_obj);
+static inline void i2c_interrupt_config(const mssp_i2c_st *i2c_obj);
+static inline void i2c_bus_colision_interrupt_config(const mssp_i2c_st *i2c_obj);
 
 
 
 
-Std_ReturnType mssp_i2c_init(const mssp_i2c_t *i2c_obj)
+Std_ReturnType MSSP_I2C_Init(const mssp_i2c_st *i2c_obj)
 {
      Std_ReturnType ret_val = E_OK ;
     
@@ -97,7 +97,7 @@ Std_ReturnType mssp_i2c_init(const mssp_i2c_t *i2c_obj)
     return ret_val ;
     
 }
-Std_ReturnType mssp_i2c_deinit(const mssp_i2c_t *i2c_obj)
+Std_ReturnType MSSP_I2C_Deinit(const mssp_i2c_st *i2c_obj)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -123,7 +123,7 @@ Std_ReturnType mssp_i2c_deinit(const mssp_i2c_t *i2c_obj)
     return ret_val ;
     
 }
-Std_ReturnType mssp_i2c_master_send_start_cond(const mssp_i2c_t *i2c_obj)
+Std_ReturnType MSSP_I2C_Master_Send_Start_Cond(const mssp_i2c_st *i2c_obj)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -153,7 +153,7 @@ Std_ReturnType mssp_i2c_master_send_start_cond(const mssp_i2c_t *i2c_obj)
     return ret_val ;
     
 }
-Std_ReturnType mssp_i2c_master_send_re_start_cond(const mssp_i2c_t *i2c_obj)
+Std_ReturnType MSSP_I2C_Master_Send_Re_Start_Cond(const mssp_i2c_st *i2c_obj)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -174,7 +174,7 @@ Std_ReturnType mssp_i2c_master_send_re_start_cond(const mssp_i2c_t *i2c_obj)
     
     return ret_val ;
 }
-Std_ReturnType mssp_i2c_master_send_stop_cond(const mssp_i2c_t *i2c_obj)
+Std_ReturnType MSSP_I2C_Master_Send_Stop_Cond(const mssp_i2c_st *i2c_obj)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -204,7 +204,7 @@ Std_ReturnType mssp_i2c_master_send_stop_cond(const mssp_i2c_t *i2c_obj)
     
     return ret_val ;
 }
-Std_ReturnType mssp_i2c_master_write_data_blocking(const mssp_i2c_t *i2c_obj , uint8_t i2c_data , uint8_t *i2c_ack)
+Std_ReturnType MSSP_I2C_Master_Write_Data_Blocking(const mssp_i2c_st *i2c_obj , uint8_t i2c_data , uint8_t *i2c_ack)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -233,7 +233,7 @@ Std_ReturnType mssp_i2c_master_write_data_blocking(const mssp_i2c_t *i2c_obj , u
     
     return ret_val ;
 }
-Std_ReturnType mssp_i2c_master_read_data_blocking(const mssp_i2c_t *i2c_obj , uint8_t *i2c_data , uint8_t ack)
+Std_ReturnType MSSP_I2C_Master_Read_Data_Blocking(const mssp_i2c_st *i2c_obj , uint8_t *i2c_data , uint8_t ack)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -257,7 +257,7 @@ Std_ReturnType mssp_i2c_master_read_data_blocking(const mssp_i2c_t *i2c_obj , ui
             SSPCON2bits.ACKDT = I2C_MASTER_SEND_ACK ; /* Acknowledge */
             SSPCON2bits.ACKEN = 1 ; /* Initiate acknowledge  */
         }
-        else if(I2C_MASTER_SEND_ACK == ack)
+        else if(I2C_MASTER_SEND_NACK == ack)
         {
             SSPCON2bits.ACKDT = I2C_MASTER_SEND_NACK ; /* Not acknowledge */
             SSPCON2bits.ACKEN = 1 ; /* Initiate acknowledge  */
@@ -269,14 +269,14 @@ Std_ReturnType mssp_i2c_master_read_data_blocking(const mssp_i2c_t *i2c_obj , ui
 }
 
 
-static inline void i2c_master_mode_init(const mssp_i2c_t *i2c_obj)
+static inline void i2c_master_mode_init(const mssp_i2c_st *i2c_obj)
 {
     SSPCON1bits.SSPM = I2C_MODE_MASTER_DEFINED_CLOCK ;
     /* BGR configuration */
     SSPADD = (uint8_t) (((_XTAL_FREQ / 4.0) / i2c_obj->i2c_clock_freq) - 1 );
 }
 
-static inline void i2c_slave_mode_init(const mssp_i2c_t *i2c_obj)
+static inline void i2c_slave_mode_init(const mssp_i2c_st *i2c_obj)
 {
     /* Clear overflow indicator */
     MSSP_I2C_CLEAR_REC_OV();
@@ -324,7 +324,7 @@ static inline void i2c_mode_gpio_config(void)
 }
 
 
-static inline void i2c_interrupt_config(const mssp_i2c_t *i2c_obj)
+static inline void i2c_interrupt_config(const mssp_i2c_st *i2c_obj)
 {
 #if MSSP_I2C_INT_ENABLE==FEATURE_ENABLE
     INT_MSSP_I2C_ENABLE();
@@ -356,7 +356,7 @@ static inline void i2c_interrupt_config(const mssp_i2c_t *i2c_obj)
     
 #endif  
 }
-static inline void i2c_bus_colision_interrupt_config(const mssp_i2c_t *i2c_obj)
+static inline void i2c_bus_colision_interrupt_config(const mssp_i2c_st *i2c_obj)
 {
 #if MSSP_I2C_BUS_COL_INT_ENABLE==FEATURE_ENABLE
     INT_MSSP_I2C_BUS_COL_ENABLE();
@@ -396,16 +396,16 @@ void MSSP_I2C_ISR(void)
     INT_MSSP_I2C_CLEAR_FLAG();
     if(i2c_InterruptHandler)
     {
-        i2c_InterruptHandler();
+        I2C_InterruptHandler();
     }
     
     if(I2C_RECEIVE_MODE_OVERFLOW == SSPCON1bits.SSPOV)
     {
         /* Clear Overflow */
         MSSP_I2C_CLEAR_REC_OV();
-        if(i2c_Receive_OverFlow_callback)
+        if(I2C_Receive_OverFlow_callback)
         {
-            i2c_Receive_OverFlow_callback();
+            I2C_Receive_OverFlow_callback();
         }
     }
     
@@ -413,9 +413,9 @@ void MSSP_I2C_ISR(void)
     {
         /* Clear write collision */
         MSSP_I2C_CLEAR_WR_COL();
-        if(i2c_Write_Collision_callback)
+        if(I2C_Write_Collision_callback)
         {
-            i2c_Write_Collision_callback();
+            I2C_Write_Collision_callback();
         }
     }
 #endif
@@ -428,9 +428,9 @@ void MSSP_I2C_BC_ISR(void)
 
         /* Some code */
 
-        if(i2c_InterruptHandler)
+        if(I2C_Bus_Colision_InterruptHandler)
         {
-            i2c_bus_colision_InterruptHandler();
+            I2C_Bus_Colision_InterruptHandler();
         }
     #endif
 }

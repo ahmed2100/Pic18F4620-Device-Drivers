@@ -7,15 +7,17 @@
 
 #include "ecu_servo_motor.h"
 
-static inline void PCA9685_write_reg(const  mssp_i2c_t *i2c_obj , i2c_slave_addr_t i2c_addr , uint8_t control_reg , uint8_t reg_byte);
-static inline void PCA9685_read_reg(const  mssp_i2c_t *i2c_obj , i2c_slave_addr_t i2c_addr , uint8_t control_reg , uint8_t *reg_byte);
+static inline void PCA9685_write_reg(const  mssp_i2c_st *i2c_obj , i2c_slave_addr_ut i2c_addr , uint8_t control_reg , uint8_t reg_byte);
+static inline void PCA9685_read_reg(const  mssp_i2c_st *i2c_obj , i2c_slave_addr_ut i2c_addr , uint8_t control_reg , uint8_t *reg_byte);
 
-static inline void PCA9685_set_PWM_freq(const  mssp_i2c_t *i2c_obj , i2c_slave_addr_t i2c_addr , uint32_t frequency);
+static inline void PCA9685_set_PWM_freq(const  mssp_i2c_st *i2c_obj , i2c_slave_addr_ut i2c_addr , uint32_t frequency);
 
 
 /**
  * 
  * @brief Interface to initialize the PCA9685 for servo motor control.
+ * 
+ * @note I2C must be initialized with MSSP_I2C_Init interface before calling this function
  * 
  * @param PCA9685_obj pointer to PCA9685 device object.
  * @param i2c_obj pointer to i2c object used for communication over i2c bus
@@ -24,7 +26,7 @@ static inline void PCA9685_set_PWM_freq(const  mssp_i2c_t *i2c_obj , i2c_slave_a
  *          (E_OK) : The function done successfully.
  *          (E_NOT_OK) : The function had an issue performing the operation.
  */
-Std_ReturnType PCA9685_servo_init(const PCA9685_servo_driver_t *PCA9685_obj ,const  mssp_i2c_t *i2c_obj)
+Std_ReturnType PCA9685_servo_init(const PCA9685_servo_driver_t *PCA9685_obj ,const  mssp_i2c_st *i2c_obj)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -74,7 +76,7 @@ Std_ReturnType PCA9685_servo_init(const PCA9685_servo_driver_t *PCA9685_obj ,con
  *          (E_OK) : The function done successfully.
  *          (E_NOT_OK) : The function had an issue performing the operation.
  */
-Std_ReturnType PCA9685_servo_write_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_t *i2c_obj , uint8_t servo_index , uint16_t servo_angle)
+Std_ReturnType PCA9685_servo_write_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_st *i2c_obj , uint8_t servo_index , uint16_t servo_angle)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -104,7 +106,7 @@ Std_ReturnType PCA9685_servo_write_angle(const PCA9685_servo_driver_t *PCA9685_o
  *          (E_OK) : The function done successfully.
  *          (E_NOT_OK) : The function had an issue performing the operation.
  */
-Std_ReturnType PCA9685_servo_read_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_t *i2c_obj , uint8_t servo_index , uint16_t *servo_angle)
+Std_ReturnType PCA9685_servo_read_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_st *i2c_obj , uint8_t servo_index , uint16_t *servo_angle)
 {
     Std_ReturnType ret_val = E_OK ;
     
@@ -121,62 +123,63 @@ Std_ReturnType PCA9685_servo_read_angle(const PCA9685_servo_driver_t *PCA9685_ob
     return ret_val;
 }
 
-static inline void PCA9685_write_reg(const  mssp_i2c_t *i2c_obj , i2c_slave_addr_t i2c_addr , uint8_t control_reg , uint8_t reg_byte)
+static inline void PCA9685_write_reg(const  mssp_i2c_st *i2c_obj , i2c_slave_addr_ut i2c_addr , uint8_t control_reg , uint8_t reg_byte)
 {
     uint8_t ack = I2C_ACK_NOT_RECEIVED_FROM_SLAVE ;
     
     /* Send Start */
-    mssp_i2c_master_send_start_cond(i2c_obj);
+    MSSP_I2C_Master_Send_Start_Cond(i2c_obj);
     /* Send PCA9685 I2C bus address */
-    mssp_i2c_master_write_data_blocking(i2c_obj , i2c_addr.full_byte , &ack );
+    MSSP_I2C_Master_Write_Data_Blocking(i2c_obj , i2c_addr.full_byte , &ack );
     if(ack == I2C_ACK_RECEIVED_FROM_SLAVE)
     {
         /* Send control register to be written to */
-        mssp_i2c_master_write_data_blocking(i2c_obj , control_reg , &ack );
+        MSSP_I2C_Master_Write_Data_Blocking(i2c_obj , control_reg , &ack );
     }
     if(ack == I2C_ACK_RECEIVED_FROM_SLAVE)
     {
         /* write byte to register */
-        mssp_i2c_master_write_data_blocking(i2c_obj , reg_byte , &ack );
+        MSSP_I2C_Master_Write_Data_Blocking(i2c_obj , reg_byte , &ack );
     }
 
-    mssp_i2c_master_send_stop_cond(i2c_obj);    
+    MSSP_I2C_Master_Send_Stop_Cond(i2c_obj);    
     
 }
 
-static inline void PCA9685_read_reg(const  mssp_i2c_t *i2c_obj , i2c_slave_addr_t i2c_addr , uint8_t control_reg , uint8_t *reg_byte)
+static inline void PCA9685_read_reg(const  mssp_i2c_st *i2c_obj , i2c_slave_addr_ut i2c_addr , uint8_t control_reg , uint8_t *reg_byte)
 {
     uint8_t ack = I2C_ACK_NOT_RECEIVED_FROM_SLAVE ;
     
     i2c_addr.read_write_bit = 0 ; // write
 
     /* Send Start */
-    mssp_i2c_master_send_start_cond(i2c_obj);
+    MSSP_I2C_Master_Send_Start_Cond(i2c_obj);
     /* Send PCA9685 I2C bus address */
-    mssp_i2c_master_write_data_blocking(i2c_obj , i2c_addr.full_byte , &ack );
+    MSSP_I2C_Master_Write_Data_Blocking(i2c_obj , i2c_addr.full_byte , &ack );
     if(ack == I2C_ACK_RECEIVED_FROM_SLAVE)
     {
-        mssp_i2c_master_write_data_blocking(i2c_obj , ECU_SM_MODE1_REG , &ack );
+        MSSP_I2C_Master_Write_Data_Blocking(i2c_obj , ECU_SM_MODE1_REG , &ack );
 
     }
     if(ack == I2C_ACK_RECEIVED_FROM_SLAVE)
     {   
         i2c_addr.read_write_bit = 1 ; // read
-        mssp_i2c_master_send_re_start_cond(i2c_obj);
-        mssp_i2c_master_write_data_blocking(i2c_obj , i2c_addr.full_byte , &ack);
+        MSSP_I2C_Master_Send_Re_Start_Cond(i2c_obj);
+        MSSP_I2C_Master_Write_Data_Blocking(i2c_obj , i2c_addr.full_byte , &ack);
         
        
     }
     if(ack == I2C_ACK_RECEIVED_FROM_SLAVE)
     {
          /* read register byte to reg_byte */
-        mssp_i2c_master_read_data_blocking(i2c_obj , reg_byte , I2C_MASTER_SEND_NACK );
+        MSSP_I2C_Master_Read_Data_Blocking(i2c_obj , reg_byte , I2C_MASTER_SEND_NACK );
     }
-    mssp_i2c_master_send_stop_cond(i2c_obj);    
+    
+    MSSP_I2C_Master_Send_Stop_Cond(i2c_obj);    
     
 }
 
-static inline void PCA9685_set_PWM_freq(const  mssp_i2c_t *i2c_obj , i2c_slave_addr_t i2c_addr , uint32_t frequency)
+static inline void PCA9685_set_PWM_freq(const  mssp_i2c_st *i2c_obj , i2c_slave_addr_ut i2c_addr , uint32_t frequency)
 {
     uint8_t mode1 = 0x00 ;
     uint8_t pre_scaler_value = 0 ;

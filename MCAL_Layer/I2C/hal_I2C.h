@@ -112,10 +112,10 @@ typedef union {
         uint8_t address : 7 ;
     };
     uint8_t full_byte ;
-}i2c_slave_addr_t;
+}i2c_slave_addr_ut;
 
 typedef struct {
-    i2c_slave_addr_t i2c_slave_address ;
+    i2c_slave_addr_ut i2c_slave_address ;
     uint8_t i2c_10bit_address_second_byte ;
     uint8_t i2c_mode_cfg ;
     uint8_t i2c_mode : 1 ;
@@ -137,7 +137,7 @@ typedef struct {
     uint8_t i2c_reserved : 1 ;
     
     
-}i2c_configs_t ;
+}i2c_configs_st ;
 
 typedef struct 
 {
@@ -151,25 +151,25 @@ typedef struct
 #endif       
 
     uint32_t i2c_clock_freq ;
-    i2c_configs_t i2c_config ;
+    i2c_configs_st i2c_config ;
 
 
     
 
-}mssp_i2c_t;
+}mssp_i2c_st;
 
 
 
 
 /******************************************** Software Interfaces (Prototypes) ********************************************/
 
-Std_ReturnType mssp_i2c_deinit(const mssp_i2c_t *i2c_obj);
-Std_ReturnType mssp_i2c_init(const mssp_i2c_t *i2c_obj);
-Std_ReturnType mssp_i2c_master_send_start_cond(const mssp_i2c_t *i2c_obj);
-Std_ReturnType mssp_i2c_master_send_re_start_cond(const mssp_i2c_t *i2c_obj);
-Std_ReturnType mssp_i2c_master_send_stop_cond(const mssp_i2c_t *i2c_obj);
-Std_ReturnType mssp_i2c_master_write_data_blocking(const mssp_i2c_t *i2c_obj , uint8_t i2c_data , uint8_t *i2c_ack);
-Std_ReturnType mssp_i2c_master_read_data_blocking(const mssp_i2c_t *i2c_obj , uint8_t *i2c_data , uint8_t ack);
+Std_ReturnType MSSP_I2C_Deinit(const mssp_i2c_st *i2c_obj);
+Std_ReturnType MSSP_I2C_Init(const mssp_i2c_st *i2c_obj);
+Std_ReturnType MSSP_I2C_Master_Send_Start_Cond(const mssp_i2c_st *i2c_obj);
+Std_ReturnType MSSP_I2C_Master_Send_Re_Start_Cond(const mssp_i2c_st *i2c_obj);
+Std_ReturnType MSSP_I2C_Master_Send_Stop_Cond(const mssp_i2c_st *i2c_obj);
+Std_ReturnType MSSP_I2C_Master_Write_Data_Blocking(const mssp_i2c_st *i2c_obj , uint8_t i2c_data , uint8_t *i2c_ack);
+Std_ReturnType MSSP_I2C_Master_Read_Data_Blocking(const mssp_i2c_st *i2c_obj , uint8_t *i2c_data , uint8_t ack);
 
 
 

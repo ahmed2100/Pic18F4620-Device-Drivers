@@ -150,7 +150,7 @@ typedef enum {
 
 typedef struct {
     uint32_t PWM_freq ;
-    i2c_slave_addr_t i2c_addr ;
+    i2c_slave_addr_ut i2c_addr ;
     
 }PCA9685_servo_driver_t ;
 
@@ -160,14 +160,17 @@ typedef struct {
  * 
  * @brief Interface to initialize the PCA9685 for servo motor control.
  * 
+ * @note I2C must be initialized with MSSP_I2C_Init interface before calling this function
+ * 
  * @param PCA9685_obj pointer to PCA9685 device object.
  * @param i2c_obj pointer to i2c object used for communication over i2c bus
-
+ * 
+ * 
  * @return Status of the function
  *          (E_OK) : The function done successfully.
  *          (E_NOT_OK) : The function had an issue performing the operation.
  */
-Std_ReturnType PCA9685_servo_init(const PCA9685_servo_driver_t *PCA9685_obj ,const  mssp_i2c_t *i2c_obj);
+Std_ReturnType PCA9685_servo_init(const PCA9685_servo_driver_t *PCA9685_obj ,const  mssp_i2c_st *i2c_obj);
 /**
  * 
  * @brief Interface to write an angle from (0 - 360)degree to servo
@@ -184,7 +187,7 @@ Std_ReturnType PCA9685_servo_init(const PCA9685_servo_driver_t *PCA9685_obj ,con
  *          (E_OK) : The function done successfully.
  *          (E_NOT_OK) : The function had an issue performing the operation.
  */
-Std_ReturnType PCA9685_servo_write_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_t *i2c_obj , uint8_t servo_index , uint16_t servo_angle);
+Std_ReturnType PCA9685_servo_write_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_st *i2c_obj , uint8_t servo_index , uint16_t servo_angle);
 
 /**
  * 
@@ -198,7 +201,7 @@ Std_ReturnType PCA9685_servo_write_angle(const PCA9685_servo_driver_t *PCA9685_o
  *          (E_OK) : The function done successfully.
  *          (E_NOT_OK) : The function had an issue performing the operation.
  */
-Std_ReturnType PCA9685_servo_read_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_t *i2c_obj , uint8_t servo_index , uint16_t *servo_angle);
+Std_ReturnType PCA9685_servo_read_angle(const PCA9685_servo_driver_t *PCA9685_obj ,const mssp_i2c_st *i2c_obj , uint8_t servo_index , uint16_t *servo_angle);
 
 /******************************************** Global Shared Variables ********************************************/
 
